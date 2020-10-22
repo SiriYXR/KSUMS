@@ -1,4 +1,4 @@
-# A python implementation of "A RANK-CONSTRAINED CLUSTERING ALGORITHM WITH ADAPTIVE EMBEDDING, ICASSP, 2021"
+# A python implementation of "Efficient Clustering Based On A Unified View Of $K$-means And Ratio-cut, NIPS, 2020"
 
 ### install
 ```
@@ -6,4 +6,4 @@ python setup.py build_ext --inplace
 ```
 
 ### usage:
-see demo_RCAE.py
+see demo_KSUMS.py
