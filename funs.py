@@ -142,6 +142,89 @@ def load_mat(path):
 def save_mat(name_full, xy):
     sio.savemat(name_full, xy)
 
+def load_csv(path,label='Y'):
+    df=pd.read_csv(path)
+    X=df[[i for i in df.columns if i!=label]].values
+    if label in df.columns:
+        y_true=df[label].values.astype(np.int32).reshape(-1)
+    else:
+        assert 1 == 0
+
+    N, dim, c_true = X.shape[0], X.shape[1], len(np.unique(y_true))
+    return X, y_true, N, dim, c_true
+
+def load_har(path):
+    x_train = pd.read_csv(path+'/train/X_train.txt',sep=r'\s+',header=None)
+    y_train = pd.read_csv(path+'/train/y_train.txt', header=None)
+    x_test = pd.read_csv(path+'/test/X_test.txt', sep=r'\s+', header=None)
+    y_test = pd.read_csv(path+'/test/y_test.txt', header=None)
+    x = np.concatenate((x_train, x_test))
+    y = np.concatenate((y_train, y_test))
+    # labels start at 1 so..
+    y = y - 1
+    y = y.reshape((y.size,))
+
+    N, dim, c_true = x.shape[0], x.shape[1], len(np.unique(y))
+    return x, y, N, dim, c_true
+
+def load_pendigits(data_path='data/pendigits'):
+    if not os.path.exists(data_path + '/pendigits.tra'):
+        os.makedirs(data_path, exist_ok=True)
+
+        os.system(
+            'wget https://archive.ics.uci.edu/ml/machine-learning-databases/pendigits/pendigits.tra -P %s' %
+            data_path)
+        os.system(
+            'wget https://archive.ics.uci.edu/ml/machine-learning-databases/pendigits/pendigits.tes -P %s' %
+            data_path)
+        os.system(
+            'wget https://archive.ics.uci.edu/ml/machine-learning-databases/pendigits/pendigits.names -P %s' %
+            data_path)
+
+    # load training data
+    with open(data_path + '/pendigits.tra') as file:
+        data = file.readlines()
+    data = [list(map(float, line.split(','))) for line in data]
+    data = np.array(data).astype(np.float32)
+    data_train, labels_train = data[:, :-1], data[:, -1]
+
+    # load testing data
+    with open(data_path + '/pendigits.tes') as file:
+        data = file.readlines()
+    data = [list(map(float, line.split(','))) for line in data]
+    data = np.array(data).astype(np.float32)
+    data_test, labels_test = data[:, :-1], data[:, -1]
+
+    x = np.concatenate((data_train, data_test)).astype('float64')
+    y = np.concatenate((labels_train, labels_test))
+    x /= 100.
+    y = y.astype('int')
+
+    N, dim, c_true = x.shape[0], x.shape[1], len(np.unique(y))
+
+    return x, y, N, dim, c_true
+
+def load_usps(data_path='data/usps'):
+    with open(data_path + '/usps_train.jf') as f:
+        data = f.readlines()
+    data = data[1:-1]
+    data = [list(map(float, line.split())) for line in data]
+    data = np.array(data)
+    data_train, labels_train = data[:, 1:], data[:, 0]
+
+    with open(data_path + '/usps_test.jf') as f:
+        data = f.readlines()
+    data = data[1:-1]
+    data = [list(map(float, line.split())) for line in data]
+    data = np.array(data)
+    data_test, labels_test = data[:, 1:], data[:, 0]
+
+    x = np.concatenate((data_train, data_test)).astype('float64')
+    y = np.concatenate((labels_train, labels_test))
+
+    N, dim, c_true = x.shape[0], x.shape[1], len(np.unique(y))
+
+    return x, y, N, dim, c_true
 
 def matrix_index_take(X, ind_M):
     assert np.all(ind_M >= 0)
